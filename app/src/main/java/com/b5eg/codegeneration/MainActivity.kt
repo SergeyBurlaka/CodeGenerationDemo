@@ -13,8 +13,8 @@ class MainActivity : AppCompatActivity(), Listener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        bindFields_Listener(this, "GO_ONE")
-        bindFields_Listener(this, "GO_TWO")
+        bindFields_Listener_generateMethod(this, "GO_ONE")
+        bindFields_Listener_generateMethod(this, "GO_TWO")
     }
 
     override fun goOne() {

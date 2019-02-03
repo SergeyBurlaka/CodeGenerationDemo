@@ -57,7 +57,7 @@ class ListenerGeneration : AbstractProcessor() {
             //BUILD METHOD HEAD
             val funcBuilder =
 
-                FunSpec.builder("bindFields_${typeElement.simpleName}")
+                FunSpec.builder("bindFields_${typeElement.simpleName}_generateMethod")
                     .addModifiers(KModifier.PUBLIC)
                     .addParameter(
                         name = "listener",
