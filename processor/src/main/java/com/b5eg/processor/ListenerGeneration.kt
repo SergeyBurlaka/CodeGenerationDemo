@@ -43,7 +43,6 @@ class ListenerGeneration : AbstractProcessor() {
         }
 
         val listenerClasses = HashSet<TypeElement>()
-
         roundEnv.getElementsAnnotatedWith(BindListener::class.java).forEach { methodElement ->
             if (methodElement.kind != ElementKind.INTERFACE) {
                 processingEnv.messager.errormessage { "Can only be applied to functions,  element: $methodElement " }
@@ -53,8 +52,6 @@ class ListenerGeneration : AbstractProcessor() {
                 listenerClasses.add(this)
             }
         }
-
-        val bricks = HashMap<TypeElement, ArrayList<String>>()
 
         listenerClasses.forEach { typeElement ->
 
@@ -72,23 +69,23 @@ class ListenerGeneration : AbstractProcessor() {
                         type = ClassName("kotlin", "String")
                     )
 
-            typeElement.enclosedElements.forEach { innerMethods ->
+            funcBuilder.addStatement(
+                "when{"
+            )
 
+            typeElement.enclosedElements.forEach { innerMethods ->
                 methods.forEach { annotatedMethod ->
                     if (annotatedMethod.simpleName == innerMethods.simpleName) {
-
                         funcBuilder.addStatement(
-                            // "listener.%L()"+"\n"+
-                            "%T.d(\"TAG\",\" ${annotatedMethod.simpleName} -> ${annotatedMethod.getAnnotation(BindAction::class.java).actionName} \")",
-                            // str,
-                            ClassName("android.util", "Log")
+                            "action == \"${annotatedMethod.getAnnotation(BindAction::class.java).actionName}\" -> {" + "\n"
+                                    + " listener.${annotatedMethod.simpleName}()" + "\n"
+                                    + "}" + "\n"
                         )
-
                     }
-
                 }
-
             }
+
+            funcBuilder.addStatement("}")
 
             val file = File(generatedSourcesRoot)
             file.mkdir()
@@ -96,11 +93,8 @@ class ListenerGeneration : AbstractProcessor() {
                 .addFunction(funcBuilder.build()).build()
                 .writeTo(file)
         }
-
-
         return false
     }
-
 
     override fun getSupportedAnnotationTypes(): MutableSet<String> {
         return mutableSetOf(BindField::class.java.canonicalName)

@@ -29,13 +29,15 @@ class MainActivity : AppCompatActivity(), Listener {
             adapter = MainRecyclerViewAdapter(billList)
             layoutManager = LinearLayoutManager(this@MainActivity)
         }
+
+        bindFields_Listener(this, "GO_ONE")
     }
 
-    override fun goOne(listener: Listener?) {
-        Log.d("TAG1", "Hello world!")
+    override fun goOne() {
+        Log.d("TAG1", "Hello world! GO ONE!!")
     }
 
-    override fun goTwo(listener: Listener?) {
+    override fun goTwo() {
         Log.d("TAG1", "Hello world 2!")
     }
 }
@@ -44,22 +46,21 @@ class MainActivity : AppCompatActivity(), Listener {
 interface Listener {
 
     @BindAction(actionName = "GO_ONE")
-    fun goOne(listener: Listener? = null)
+    fun goOne()
 
     @BindAction(actionName = "GO_TWO")
-    fun goTwo(listener: Listener? = null)
+    fun goTwo()
 }
 
 @BindListener
 interface Listener2 {
 
     @BindAction(actionName = "GO_ONE_ONE")
-    fun goOneOne(listener: Listener? = null)
+    fun goOneOne()
 
     @BindAction(actionName = "GO_TWO_TWO")
-    fun goTwoTwo(listener: Listener? = null)
+    fun goTwoTwo()
 }
-
 
 class MainRecyclerViewAdapter(private val listOfObjects: List<Bil>) : RecyclerView.Adapter<MainItemViewHolder>() {
 

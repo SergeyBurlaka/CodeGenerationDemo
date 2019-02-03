@@ -105,8 +105,6 @@ class BindFieldsProcessor : AbstractProcessor() {
         }
 
 
-
-
         val file = File(generatedSourcesRoot)
         file.mkdir()
         FileSpec.builder(packageOfMethod, "BindFieldsGenerated").addFunction(funcBuilder.build()).build().writeTo(file)
