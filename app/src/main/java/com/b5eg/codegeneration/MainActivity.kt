@@ -9,21 +9,23 @@ import com.b5eg.annotations.BindListener
 
 class MainActivity : AppCompatActivity(), Listener {
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         bindFields_Listener(this, "GO_ONE")
+        bindFields_Listener(this, "GO_TWO")
     }
 
     override fun goOne() {
-        Log.d("TAG1", "Hello world! GO ONE!!")
+        Log.d(tag, "Hello one world!")
     }
 
     override fun goTwo() {
-        Log.d("TAG1", "Hello world 2!")
+        Log.d(tag, "Hello two world!")
     }
+
+    private val tag = MainActivity::class.java.simpleName
 }
 
 @BindListener
@@ -35,6 +37,7 @@ interface Listener {
     @BindAction(actionName = "GO_TWO")
     fun goTwo()
 }
+
 
 //@BindListener
 //interface Listener2 {
