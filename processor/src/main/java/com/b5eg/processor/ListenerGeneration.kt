@@ -1,7 +1,6 @@
 package com.b5eg.processor
 
 import com.b5eg.annotations.BindAction
-import com.b5eg.annotations.BindField
 import com.b5eg.annotations.BindListener
 import com.google.auto.service.AutoService
 import com.squareup.kotlinpoet.*
@@ -24,7 +23,7 @@ class ListenerGeneration : AbstractProcessor() {
     override fun process(annotations: MutableSet<out TypeElement>, roundEnv: RoundEnvironment): Boolean {
 
         val generatedSourcesRoot: String =
-            processingEnv.options[BindFieldsProcessor.KAPT_KOTLIN_GENERATED_OPTION_NAME].orEmpty()
+            processingEnv.options[ListenerGeneration.KAPT_KOTLIN_GENERATED_OPTION_NAME].orEmpty()
 
         if (generatedSourcesRoot.isEmpty()) {
             processingEnv.messager.errormessage { "Can't find the target directory for generated Kotlin files." }
@@ -96,8 +95,10 @@ class ListenerGeneration : AbstractProcessor() {
         return false
     }
 
-    override fun getSupportedAnnotationTypes(): MutableSet<String> {
-        return mutableSetOf(BindField::class.java.canonicalName)
-    }
+    override fun getSupportedAnnotationTypes(): MutableSet<String> =
+        mutableSetOf(BindAction::class.java.canonicalName).apply {
+            add(BindListener::class.java.canonicalName)
+        }
+
 }
 
