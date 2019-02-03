@@ -31,7 +31,6 @@ class MainActivity : AppCompatActivity(), Listener {
         }
     }
 
-
     override fun goOne(listener: Listener?) {
         Log.d("TAG1", "Hello world!")
     }
@@ -49,6 +48,16 @@ interface Listener {
 
     @BindAction(actionName = "GO_TWO")
     fun goTwo(listener: Listener? = null)
+}
+
+@BindListener
+interface Listener2 {
+
+    @BindAction(actionName = "GO_ONE_ONE")
+    fun goOneOne(listener: Listener? = null)
+
+    @BindAction(actionName = "GO_TWO_TWO")
+    fun goTwoTwo(listener: Listener? = null)
 }
 
 

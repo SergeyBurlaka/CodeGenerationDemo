@@ -11,7 +11,6 @@ import javax.lang.model.SourceVersion
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
-import javax.lang.model.util.ElementFilter
 
 @AutoService(Processor::class) // For registering the service
 @SupportedSourceVersion(SourceVersion.RELEASE_8) // to support Java 8
@@ -43,7 +42,7 @@ class ListenerGeneration : AbstractProcessor() {
             }
         }
 
-        val listeners = HashSet<TypeElement>()
+        val listenerClasses = HashSet<TypeElement>()
 
         roundEnv.getElementsAnnotatedWith(BindListener::class.java).forEach { methodElement ->
             if (methodElement.kind != ElementKind.INTERFACE) {
@@ -51,67 +50,54 @@ class ListenerGeneration : AbstractProcessor() {
                 return false
             }
             (methodElement as TypeElement).apply {
-                listeners.add(this)
+                listenerClasses.add(this)
             }
         }
 
-        listeners.forEach { variableElement ->
+        val bricks = HashMap<TypeElement, ArrayList<String>>()
+
+        listenerClasses.forEach { typeElement ->
 
             //BUILD METHOD HEAD
             val funcBuilder =
-                FunSpec.builder("bindFields2")
+
+                FunSpec.builder("bindFields_${typeElement.simpleName}")
                     .addModifiers(KModifier.PUBLIC)
                     .addParameter(
                         name = "listener",
-                        type = variableElement.asType().asTypeName()
+                        type = typeElement.asType().asTypeName()
+                    )
+                    .addParameter(
+                        name = "action",
+                        type = ClassName("kotlin", "String")
                     )
 
-            //BUILD METHOD BODY
+            typeElement.enclosedElements.forEach { innerMethods ->
 
-            val variableAsElement1 = processingEnv.typeUtils.asElement(variableElement.asType())
-            funcBuilder.addStatement(
-                // "listener.%L()"+"\n"+
-                "%T.d(\"HACK\",\" ${variableAsElement1.enclosedElements.size}\")",
-                // str,
-                ClassName("android.util", "Log")
-            )
+                methods.forEach { annotatedMethod ->
+                    if (annotatedMethod.simpleName == innerMethods.simpleName) {
 
-            funcBuilder.addStatement(
-                // "listener.%L()"+"\n"+
-                "%T.d(\"HACK\",\" ${variableAsElement1.asType().asTypeName()}\")",
-                // str,
-                ClassName("android.util", "Log")
-            )
+                        funcBuilder.addStatement(
+                            // "listener.%L()"+"\n"+
+                            "%T.d(\"TAG\",\" ${annotatedMethod.simpleName} -> ${annotatedMethod.getAnnotation(BindAction::class.java).actionName} \")",
+                            // str,
+                            ClassName("android.util", "Log")
+                        )
 
-            ElementFilter.methodsIn(variableAsElement1.enclosedElements).forEach { innerMethods ->
-                funcBuilder.addStatement(
-                    // "listener.%L()"+"\n"+
-                    "%T.d(\"HACK\",\"${innerMethods.simpleName}\")",
-                    // str,
-                    ClassName("android.util", "Log")
-                )
-            }
+                    }
 
-            /**
-             * methods
-             */
-            methods.forEach {
-                funcBuilder.addStatement(
-                    // "listener.%L()"+"\n"+
-                    "%T.d(\"HACK\",\" ${it.simpleName}\")",
-                    // str,
-                    ClassName("android.util", "Log")
-                )
+                }
+
             }
 
             val file = File(generatedSourcesRoot)
-
             file.mkdir()
-            FileSpec.builder("com.b5eg.codegeneration", "BindFieldsGenerated2")
+            FileSpec.builder("com.b5eg.codegeneration", "BindFieldsGenerated_${typeElement.simpleName}")
                 .addFunction(funcBuilder.build()).build()
                 .writeTo(file)
-
         }
+
+
         return false
     }
 
